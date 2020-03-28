@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=scr, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Catch the cat</title>
+
+    <style>
+    canvas{ background-color: yellowgreen; }
+    </style>
+
+</head>
+<body>
+
+    <script src="scripts/mattress.js"></script>
+
+    <script>
+
+        const mattress = new Mattress()
+
+        const ctx = mattress.createCanvas()
+        mattress.center()
+        mattress.fullScrean()
+
+        const sounds = [
+            "latido",
+            "choro",
+            "miado"
+        ]
+
+        const soundSource = {
+            choro: "sounds/DOG1.wav",
+            latido: "sounds/PUPPY1.wav",
+            miado: "sounds/CAT.wav",
+        }
+
+        const dogStates = {
+            stop: new Image(),
+            running: new Image(),
+            jumping: new Image(),
+            died: new Image()
+        }
+
+        dogStates.stop.src = "img/dog/parado.png"
+        dogStates.running.src = "img/dog/correndo.png"
+        dogStates.jumping.src = "img/dog/pulando.png"
+        dogStates.died.src = "img/dog/pulandofail.png"
+
+        const parallaxImgs = {
+            first: new Image(),
+            second: new Image()
+        }
+
+        parallaxImgs.first.src = "img/ceu.png"
+        parallaxImgs.second.src = "img/ceu1.png"
+
+        const catStates = {
+            running: new Image(),
+            jumping: new Image(),
+            fliyng: new Image(),
+            died: new Image()
+        }
+
+        catStates.running.src = "img/cat/correndo.png"
+        catStates.running.src = "img/cat/pulando.png"
+
+        const parallax = {
+        x2: mattress.cnv.width,
+        x: 0,
+        y: 0,
+        width: mattress.cnv.width,
+        height: mattress.cnv.height,
+        srcX: 0,
+        srcY: 0,
+        srcWidth: 1080,
+        srcHeight: 1920,
+        velocity:5,
+
+        draw: function() {
+         ctx.drawImage(parallaxImgs.first, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
+         ctx.drawImage(parallaxImgs.second, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x2, this.y, this.width, this.height)
+        },
+
+        update: function() {
+            this.x -= this.velocity
+            if(this.x + this.width <= 0) {
+                if(this.x !== this.x2 + this.width){
+                    this.x = this.x2 + this.width - this.velocity
+                }else{
+                    this.x = this.x2 + this.width - this.velocity
+                }
+            }
+
+            this.x2 -= this.velocity
+            if(this.x2 + this.width <= 0) {
+                if(this.x2 !== this.x + this.width){
+                    this.x2 = this.x + this.width - 5
+                }else{
+                    this.x2 = this.x + this.width - 5
+                }
+            }
+        }
+    }
+
+        const states = {
+            menu: 1,
+            inGame: 2,
+            dead: 3
+        }
+
+        const point = new Image()
+        point.src = "img/point.png"
+
+        const player = {
+            img:0,
+            srcX:0,
+            srcY:0,
+            srcWidth:255.5,
+            srcHeight:256,
+            x:0,
+            y:mattress.cnv.height - 236,
+            width:155.5,
+            height:176,
+            state:"running",
+            frames:0,
+            time:0,
+            velocity:4,
+
+            draw: function() {
+                ctx.drawImage(this.img, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
+            },
+
+            update() {
+
+                if(statesUpdate.state === 2 && this.y < mattress.cnv.height - 236){
+                    mattress.gravity(this, 0.4)
+                }
+
+                if(this.y >= mattress.cnv.height - 236 && this.state != "died"){
+                    mattress.velocity = 0
+                    this.state = "running"
+                }
+
+                if(this.state === "jumping"){
+                    this.frames = 8
+                    this.velocity = 5
+                    this.img = dogStates.jumping
+                    this.srcWidth = 255.5
+                    this.srcHeight = 276
+                }else if(this.state === "running"){
+                    this.img = dogStates.running
+                    this.frames = 4
+                    this.velocity = 4
+                    this.srcWidth = 245.7
+                    this.srcHeight = 256
+                }else if(this.state === "died"){
+                    this.img = dogStates.died
+                    this.frames = 8
+                    this.velocity = 4
+                    this.srcWidth = 237.875
+                    this.srcHeight = 265
+                    mattress.gravity(this, 0.4)
+                    statesUpdate.state = states.dead
+                }else if(this.state === "stop"){
+                    this.img = dogStates.stop
+                    this.frames = 3
+                    this.velocity = 4
+                    this.srcWidth = 252.666666
+                    this.srcHeight = 265
+                }
+
+                this.time++
+
+                if(this.time >= this.frames*this.velocity){
+                    this.time = 0
+                }
+
+                this.srcX = Math.floor(this.time/this.velocity) * this.srcWidth
+
+            }
+
+        }
+
+        const y = player.y + player.height - 45
+
+        const floor = {
+            x2: mattress.cnv.width + mattress.cnv.width + 300,
+            x: mattress.cnv.width,
+            y: y,
+            width: mattress.cnv.width + 200,
+            height: 200,
+
+            draw: function() {
+                ctx.fillStyle = "green"
+                ctx.fillRect(this.x, this.y, this.width, this.height)
+                ctx.fillRect(this.x2, this.y, this.width, this.height)
+            },
+
+            update: function() {
+                if(statesUpdate.state === states.inGame){
+                    this.x -= 7
+                    this.x2 -= 7
+                }
+
+                if(this.x + this.width <= 0){
+                    this.x =  this.x2 + this.width + 100
+                }
+
+                if(this.x2 + this.width <= 0){
+                    this.x2 = this.x + this.width + 100
+                }
+            }
+        }
+
+        const statesUpdate = {
+
+            state: states.menu,
+            x: 0,
+
+            draw: function(){
+                ctx.fillStyle = "green"
+                ctx.fillRect(this.x, y, mattress.cnv.width, 200)
+                if(this.state === 1){
+                    ctx.drawImage(point, 0, 0, 1085, 1085, (mattress.cnv.width / 2) - 70, (mattress.cnv.height / 2) - 70, 140, 140)
+                    ctx.fillStyle = "green"
+                    ctx.fillRect(this.x, y, mattress.cnv.width, 200)
+                    ctx.font = "12px Arial"
+                    ctx.fillStyle = "black"
+                    ctx.fillText("music from zapsplat: https://www.zapsplat.com", mattress.cnv.width - 260, mattress.cnv.height - 10)
+                }
+            },
+
+            update: function() {
+                if(this.state === states.inGame){
+                    this.x -= 8
+                }
+            } 
+        }
+
+        let interval = setInterval(() => {
+            if(statesUpdate.state === states.dead){
+                mattress.playSound("choro", sounds, soundSource.choro)
+                clearInterval(interval)
+            }
+        }, 50)
+
+        mattress.cnv.addEventListener("click", function(e) {
+
+            let posX = e.clientX - mattress.cnv.offsetLeft
+            let posY = e.clientY - mattress.cnv.offsetTop
+
+            if(statesUpdate.state === states.inGame){
+                player.y -= 150
+                player.state = "jumping"
+            }
+
+            if(statesUpdate.state === states.menu){
+                statesUpdate.state = states.inGame
+                mattress.playSound("miado", sounds, soundSource.miado)
+            }
+        }, true)
+
+        function init() {
+            mattress.backgroundMusic("sounds/audio_hero_Yessir_SIPML_K-0329.mp3")
+            loop()
+        }
+
+        function loop() {
+            requestAnimationFrame(loop, mattress.cnv)
+            mattress.fullScrean()
+            update()
+            draw()
+        }
+
+        function update() {
+            parallax.update()
+            floor.update()
+            statesUpdate.update()
+            player.update()
+        }
+
+        function draw() {
+            mattress.clear()
+            parallax.draw()
+            floor.draw()
+            statesUpdate.draw()
+            player.draw()
+        }
+
+        init()
+
+    </script>
+
+</body>
+</html>
