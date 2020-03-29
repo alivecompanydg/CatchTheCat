@@ -134,6 +134,18 @@
 
             update() {
 
+                if(this.x + this.width - 80 >= floor.x + floor.width && this.x + this.width <= floor.x2 && this.state != "jumping"){
+                    this.state = "died"
+                }
+
+                if(this.x + this.width - 80 >= floor.x2 + floor.width && this.x + this.width <= floor.x && this.state != "jumping"){
+                    this.state = "died"
+                }
+
+                if(this.y > mattress.cnv.height + (mattress.cnv.height/2)){
+                    window.location.href = "index.html"
+                }
+
                 if(statesUpdate.state === 2 && this.y < mattress.cnv.height - 236){
                     this.Velocity += 0.4
                     this.y += this.Velocity
