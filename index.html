@@ -63,7 +63,7 @@
         }
 
         catStates.running.src = "img/cat/correndo.png"
-        catStates.running.src = "img/cat/pulando.png"
+        catStates.jumping.src = "img/cat/pulando.png"
 
         const parallax = {
         x2: mattress.cnv.width,
@@ -126,6 +126,7 @@
             frames:0,
             time:0,
             velocity:4,
+            Velocity: 0,
 
             draw: function() {
                 ctx.drawImage(this.img, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
@@ -134,11 +135,12 @@
             update() {
 
                 if(statesUpdate.state === 2 && this.y < mattress.cnv.height - 236){
-                    mattress.gravity(this, 0.4)
+                    this.Velocity += 0.4
+                    this.y += this.Velocity
                 }
 
                 if(this.y >= mattress.cnv.height - 236 && this.state != "died"){
-                    mattress.velocity = 0
+                    this.Velocity = 0
                     this.state = "running"
                 }
 
@@ -150,7 +152,7 @@
                     this.srcHeight = 276
                 }else if(this.state === "running"){
                     this.img = dogStates.running
-                    this.frames = 4
+                    this.frames = 6
                     this.velocity = 4
                     this.srcWidth = 245.7
                     this.srcHeight = 256
@@ -160,13 +162,86 @@
                     this.velocity = 4
                     this.srcWidth = 237.875
                     this.srcHeight = 265
-                    mattress.gravity(this, 0.4)
+                    this.Velocity += 0.4
+                    this.y += this.Velocity
                     statesUpdate.state = states.dead
-                }else if(this.state === "stop"){
-                    this.img = dogStates.stop
-                    this.frames = 3
+                }
+
+                this.time++
+
+                if(this.time >= this.frames*this.velocity){
+                    this.time = 0
+                }
+
+                this.srcX = Math.floor(this.time/this.velocity) * this.srcWidth
+
+            }
+
+        }
+
+        const cat = {
+            img:0,
+            srcX:0,
+            srcY:0,
+            srcWidth:245.7,
+            srcHeight:256,
+            x: -150,
+            y:mattress.cnv.height - 232,
+            width:155.5,
+            height:176,
+            state:"running",
+            frames:0,
+            time:0,
+            velocity:4,
+            Velocity: 0,
+
+            draw: function() {
+                ctx.drawImage(this.img, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
+            },
+
+            update() {
+
+                if(statesUpdate.state === 2 && this.y < mattress.cnv.height - 236){
+                    this.Velocity += 0.4
+                    this.y += this.Velocity
+                }
+
+                if(statesUpdate.state === states.inGame){
+                    if(this.x <= mattress.cnv.width - 170){
+                        this.x += 4
+                    }
+                }
+
+                if(this.x + this.width - 80 >= floor.x + floor.width && this.x + this.width <= floor.x2 && this.state != "jumping"){
+                    //this.y = mattress.cnv.height - 360
+                    this.y -= 150
+                    this.state = "jumping"
+                }
+
+                if(this.x + this.width - 80 >= floor.x2 + floor.width && this.x + this.width <= floor.x && this.state != "jumping"){
+                    //this.y = mattress.cnv.height - 360
+                    this.y -= 150
+                    this.state = "jumping"
+                }
+
+                if(this.y >= mattress.cnv.height - 236){
+                    this.Velocity = 0
+                    this.state = "running"
+                }
+
+                if(this.state === "jumping"){
+                    this.frames = 8
+                    this.velocity = 5
+                    this.img = catStates.jumping
+                    this.srcWidth = 255.5
+                    this.srcHeight = 276
+                    this.Velocity += 0.4
+                    this.y += this.Velocity
+                }else if(this.state === "running"){
+                    this.img = catStates.running
+                    this.frames = 6
                     this.velocity = 4
-                    this.srcWidth = 252.666666
+                    this.srcWidth = 245.7
                     this.srcHeight = 265
                 }
 
@@ -233,7 +308,7 @@
 
             update: function() {
                 if(this.state === states.inGame){
-                    this.x -= 8
+                    this.x -= 7
                 }
             } 
         }
@@ -277,6 +352,7 @@
             parallax.update()
             floor.update()
             statesUpdate.update()
+            cat.update()
             player.update()
         }
 
@@ -285,6 +361,7 @@
             parallax.draw()
             floor.draw()
             statesUpdate.draw()
+            cat.draw()
             player.draw()
         }
 
