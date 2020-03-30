@@ -16,6 +16,20 @@
 
     <script>
 
+let timeLeft = setInterval(() => {
+        try{
+            init()
+        }catch(err){
+            if(err){
+                document.location.reload(false)
+
+            }else{
+                //document.location.reload(false)
+            }
+        }
+        clearInterval(timeLeft)
+    },1000)
+
         const mattress = new Mattress()
 
         const ctx = mattress.createCanvas()
@@ -375,8 +389,6 @@
             cat.draw()
             player.draw()
         }
-
-        init()
 
     </script>
 
