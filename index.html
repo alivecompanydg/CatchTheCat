@@ -12,6 +12,10 @@
 </head>
 <body>
 
+    <audio loop autoplay>
+        <source src="sounds/audio_hero_Yessir_SIPML_K-0329.mp3" type="audio/mpeg">
+    </audio>
+
     <script src="scripts/mattress.js"></script>
 
     <script>
@@ -47,6 +51,16 @@ let timeLeft = setInterval(() => {
             latido: "sounds/PUPPY1.wav",
             miado: "sounds/CAT.wav",
         }
+
+        const assets = {
+            bars: new Image(),
+            trophie: new Image(),
+            menu: new Image()
+        }
+
+        assets.bars.src = "img/pause.png"
+        assets.trophie.src = "img/recorde.png"
+        assets.menu.src = "img/menu.png"
 
         const dogStates = {
             stop: new Image(),
@@ -119,11 +133,43 @@ let timeLeft = setInterval(() => {
         const states = {
             menu: 1,
             inGame: 2,
-            dead: 3
+            dead: 3,
+            pause: 4
         }
 
         const point = new Image()
         point.src = "img/point.png"
+
+        const hud = {
+            count:0,
+            record:0,
+
+            draw: function() {
+                if(statesUpdate.state === states.inGame){
+                    ctx.fillStyle = "black"
+                    ctx.font = "20px Arial"
+                    ctx.fillText(`${this.record}/${Math.floor(this.count)}`, 40, 25)
+                    ctx.drawImage(assets.trophie, 0, 0, 800, 800, 10, 6, 20, 20)
+                    ctx.drawImage(assets.bars, 0, 0, 800, 800, mattress.cnv.width - 30, 6, 20, 20)
+                }
+                if(statesUpdate.state === states.pause){
+                    ctx.drawImage(assets.menu, 0, 0, 1080, 1920, 0, 0, mattress.cnv.width, mattress.cnv.height)
+                }
+            },
+
+            update: function() {
+
+                if(localStorage.getItem("record")){
+                    this.record = localStorage.getItem("record")
+                }else{
+                    localStorage.setItem(this.record, "record")
+                }
+
+                if(statesUpdate.state === states.inGame){
+                    this.count += 0.01
+                }
+            }
+        }
 
         const player = {
             img:0,
@@ -145,7 +191,11 @@ let timeLeft = setInterval(() => {
                 ctx.drawImage(this.img, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
             },
 
-            update() {
+            update: async function() {
+
+                if(statesUpdate.state === states.menu){
+                    this.state = "stop"
+                }
 
                 if(this.x + this.width - 80 >= floor.x + floor.width && this.x + this.width <= floor.x2 && this.state != "jumping"){
                     this.state = "died"
@@ -156,6 +206,9 @@ let timeLeft = setInterval(() => {
                 }
 
                 if(this.y > mattress.cnv.height + (mattress.cnv.height/2)){
+                    if(hud.count > hud.record){
+                        await localStorage.setItem("record", Math.floor(hud.count))
+                    }
                     window.location.href = "index.html"
                 }
 
@@ -164,7 +217,7 @@ let timeLeft = setInterval(() => {
                     this.y += this.Velocity
                 }
 
-                if(this.y >= mattress.cnv.height - 236 && this.state != "died"){
+                if(this.y >= mattress.cnv.height - 236 && this.state != "died" && statesUpdate.state != states.menu && cat.x > this.x){
                     this.Velocity = 0
                     this.state = "running"
                 }
@@ -190,6 +243,12 @@ let timeLeft = setInterval(() => {
                     this.Velocity += 0.4
                     this.y += this.Velocity
                     statesUpdate.state = states.dead
+                }else if(this.state === "stop") {
+                    this.img = dogStates.stop
+                    this.frames = 4
+                    this.srcWidth = 226.75
+                    this.srcHeight = 267
+                    this.velocity = 25
                 }
 
                 this.time++
@@ -355,6 +414,12 @@ let timeLeft = setInterval(() => {
                 player.state = "jumping"
             }
 
+            if(statesUpdate.state === states.inGame && posX >= mattress.cnv.width - 30 && posX <= mattress.cnv.width - 10 && posY >= 6 && posY <= 26){
+                player.y = mattress.cnv.height - 236
+                document.querySelector("audio").pause()
+                statesUpdate.state = states.pause
+            }
+
             if(statesUpdate.state === states.menu){
                 statesUpdate.state = states.inGame
                 mattress.playSound("miado", sounds, soundSource.miado)
@@ -362,7 +427,7 @@ let timeLeft = setInterval(() => {
         }, true)
 
         function init() {
-            mattress.backgroundMusic("sounds/audio_hero_Yessir_SIPML_K-0329.mp3")
+            //mattress.backgroundMusic("sounds/audio_hero_Yessir_SIPML_K-0329.mp3")
             loop()
         }
 
@@ -374,11 +439,16 @@ let timeLeft = setInterval(() => {
         }
 
         function update() {
-            parallax.update()
-            floor.update()
-            statesUpdate.update()
-            cat.update()
-            player.update()
+            hud.update()
+            if(statesUpdate.state === states.inGame){
+                parallax.update()
+            }
+            if(statesUpdate.state != states.pause){
+                floor.update()
+                statesUpdate.update()
+                cat.update()
+                player.update()
+            }
         }
 
         function draw() {
@@ -388,6 +458,7 @@ let timeLeft = setInterval(() => {
             statesUpdate.draw()
             cat.draw()
             player.draw()
+            hud.draw()
         }
 
     </script>
