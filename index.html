@@ -6,7 +6,17 @@
     <title>Catch the cat</title>
 
     <style>
-    canvas{ background-color: yellowgreen; }
+    canvas{
+        background-color: yellowgreen;
+        position: absolute;
+        width:100%;
+        height:100%;
+        margin:auto;
+        left:0px;
+        right:0px;
+        top:0px;
+        bottom:0px;
+    }
     </style>
 
 </head>
@@ -19,6 +29,8 @@
     <script src="scripts/mattress.js"></script>
 
     <script>
+
+    const mattress = new Mattress()
 
 let timeLeft = setInterval(() => {
         try{
@@ -33,12 +45,6 @@ let timeLeft = setInterval(() => {
         }
         clearInterval(timeLeft)
     },1000)
-
-        const mattress = new Mattress()
-
-        const ctx = mattress.createCanvas()
-        mattress.fullScrean()
-        mattress.center()
 
         const sounds = [
             "latido",
@@ -55,12 +61,14 @@ let timeLeft = setInterval(() => {
         const assets = {
             bars: new Image(),
             trophie: new Image(),
-            menu: new Image()
+            menu: new Image(),
+            botao: new Image()
         }
 
         assets.bars.src = "img/pause.png"
         assets.trophie.src = "img/recorde.png"
         assets.menu.src = "img/menu.png"
+        assets.botao.src = "img/botao.png"
 
         const dogStates = {
             stop: new Image(),
@@ -91,6 +99,13 @@ let timeLeft = setInterval(() => {
 
         catStates.running.src = "img/cat/correndo.png"
         catStates.jumping.src = "img/cat/pulando.png"
+
+        const point = new Image()
+        point.src = "img/point.png"
+
+        const ctx = mattress.createCanvas()
+        mattress.fullScrean()
+        mattress.center()
 
         const parallax = {
         x2: mattress.cnv.width,
@@ -137,9 +152,6 @@ let timeLeft = setInterval(() => {
             pause: 4
         }
 
-        const point = new Image()
-        point.src = "img/point.png"
-
         const hud = {
             count:0,
             record:0,
@@ -154,6 +166,12 @@ let timeLeft = setInterval(() => {
                 }
                 if(statesUpdate.state === states.pause){
                     ctx.drawImage(assets.menu, 0, 0, 1080, 1920, 0, 0, mattress.cnv.width, mattress.cnv.height)
+                    ctx.font = "15px Arial"
+                    ctx.fillStyle = "black"
+                    ctx.drawImage(assets.botao, 0, 0, 948, 226, mattress.cnv.width/2 - 150, mattress.cnv.height/2 - 30, 300, 60)
+                    ctx.fillText("CONTINUE", mattress.cnv.width/2 - 40, mattress.cnv.height/2 + 5)
+                    ctx.drawImage(assets.botao, 0, 0, 948, 226, mattress.cnv.width/2 - 150, mattress.cnv.height/2 + 30, 300, 60)
+                    ctx.fillText("MAIN MENU", mattress.cnv.width/2 - 40, mattress.cnv.height/2 + 65)
                 }
             },
 
@@ -186,6 +204,7 @@ let timeLeft = setInterval(() => {
             time:0,
             velocity:4,
             Velocity: 0,
+            qntsPulos:0,
 
             draw: function() {
                 ctx.drawImage(this.img, this.srcX, this.srcY, this.srcWidth, this.srcHeight, this.x, this.y, this.width, this.height)
@@ -228,12 +247,14 @@ let timeLeft = setInterval(() => {
                     this.img = dogStates.jumping
                     this.srcWidth = 255.5
                     this.srcHeight = 276
+                    this.qntsPulos = 1
                 }else if(this.state === "running"){
                     this.img = dogStates.running
                     this.frames = 6
                     this.velocity = 4
                     this.srcWidth = 245.7
                     this.srcHeight = 256
+                    this.qntsPulos = 0
                 }else if(this.state === "died"){
                     this.img = dogStates.died
                     this.frames = 8
@@ -410,14 +431,23 @@ let timeLeft = setInterval(() => {
             let posY = e.clientY - mattress.cnv.offsetTop
 
             if(statesUpdate.state === states.inGame){
-                player.y -= 150
-                player.state = "jumping"
+                if(player.qntsPulos < 1){
+                    player.y -= 150
+                    player.state = "jumping"
+                }
             }
 
             if(statesUpdate.state === states.inGame && posX >= mattress.cnv.width - 30 && posX <= mattress.cnv.width - 10 && posY >= 6 && posY <= 26){
                 player.y = mattress.cnv.height - 236
                 document.querySelector("audio").pause()
                 statesUpdate.state = states.pause
+            }
+
+            if(statesUpdate.state === states.pause && posX >= mattress.cnv.width/2 - 150 && posX <= mattress.cnv.width/2 + 150 && posY >= mattress.cnv.height/2 - 30 && posY <= mattress.cnv.height/2 + 30){
+                statesUpdate.state = states.inGame
+                document.querySelector("audio").play()
+            }else if(statesUpdate.state === states.pause && posX >= mattress.cnv.width/2 - 150 && posX <= mattress.cnv.width/2 + 150 && posY >= mattress.cnv.height/2 + 30 && posY <= mattress.cnv.height/2 + 90) {
+                window.location.href = "index.html"
             }
 
             if(statesUpdate.state === states.menu){
