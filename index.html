@@ -490,8 +490,10 @@ let timeLeft = setInterval(() => {
             if(statesUpdate.state != states.pause && player.state !== "died"){
                 cat.update()
             }else{
-                cat.update()
-                cat.x += 4
+                if(statesUpdate.state != states.pause){
+                    cat.update()
+                    cat.x += 4
+                }
             }
         }
 
