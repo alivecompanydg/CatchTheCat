@@ -78,12 +78,14 @@ let timeLeft = setInterval(() => {
             stop: new Image(),
             running: new Image(),
             jumping: new Image(),
+            hurt: new Image(),
             died: new Image()
         }
 
         dogStates.stop.src = "img/dog/parado.png"
         dogStates.running.src = "img/dog/correndo.png"
         dogStates.jumping.src = "img/dog/pulando.png"
+        dogStates.hurt.src = "img/dog/tropeco.png"
         dogStates.died.src = "img/dog/pulandofail.png"
 
         const parallaxImgs = {
