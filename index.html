@@ -62,13 +62,17 @@ let timeLeft = setInterval(() => {
             bars: new Image(),
             trophie: new Image(),
             menu: new Image(),
-            botao: new Image()
+            botao: new Image(),
+            rock: new Image(),
+            grass: new Image()
         }
 
         assets.bars.src = "img/pause.png"
         assets.trophie.src = "img/recorde.png"
         assets.menu.src = "img/menu.png"
         assets.botao.src = "img/botao.png"
+        assets.rock.src = "img/pedra.png"
+        assets.grass.src = "img/mato.png"
 
         const dogStates = {
             stop: new Image(),
@@ -365,10 +369,10 @@ let timeLeft = setInterval(() => {
         const y = player.y + player.height - 45
 
         const floor = {
-            x2: mattress.cnv.width + mattress.cnv.width + 300,
+            x2: mattress.cnv.width + mattress.cnv.width + 100,
             x: mattress.cnv.width,
             y: y,
-            width: mattress.cnv.width + 200,
+            width: mattress.cnv.width * 8,
             height: 200,
             velocity:7,
 
@@ -457,10 +461,8 @@ let timeLeft = setInterval(() => {
                 mattress.playSound("latido", sounds, soundSource.latido)
             }
 
-            if(Math.floor(hud.count) != 0 && Math.floor(hud.count)%5 === 0){
-                if(floor.velocity <= 18){
-                    floor.velocity++
-                }
+            if(Math.floor(hud.count) > 30 && Math.floor(hud.count) < 120){
+                floor.velocity += 0.2
             }
 
         }, true)
@@ -490,7 +492,7 @@ let timeLeft = setInterval(() => {
             if(statesUpdate.state != states.pause && player.state !== "died"){
                 cat.update()
             }else{
-                if(statesUpdate.state != states.pause){
+                if(statesUpdate.state === states.dead){
                     cat.update()
                     cat.x += 4
                 }
