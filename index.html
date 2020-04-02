@@ -370,6 +370,7 @@ let timeLeft = setInterval(() => {
             y: y,
             width: mattress.cnv.width + 200,
             height: 200,
+            velocity:7,
 
             draw: function() {
                 ctx.fillStyle = "green"
@@ -379,8 +380,8 @@ let timeLeft = setInterval(() => {
 
             update: function() {
                 if(statesUpdate.state === states.inGame){
-                    this.x -= 7
-                    this.x2 -= 7
+                    this.x -= this.velocity
+                    this.x2 -= this.velocity
                 }
 
                 if(this.x + this.width <= 0){
@@ -425,7 +426,7 @@ let timeLeft = setInterval(() => {
             }
         }, 50)
 
-        mattress.cnv.addEventListener("click", function(e) {
+        mattress.cnv.addEventListener("click", async function(e) {
 
             let posX = e.clientX - mattress.cnv.offsetLeft
             let posY = e.clientY - mattress.cnv.offsetTop
@@ -452,8 +453,16 @@ let timeLeft = setInterval(() => {
 
             if(statesUpdate.state === states.menu){
                 statesUpdate.state = states.inGame
-                mattress.playSound("miado", sounds, soundSource.miado)
+                await mattress.playSound("miado", sounds, soundSource.miado)
+                mattress.playSound("latido", sounds, soundSource.latido)
             }
+
+            if(Math.floor(hud.count) != 0 && Math.floor(hud.count)%5 === 0){
+                if(floor.velocity <= 18){
+                    floor.velocity++
+                }
+            }
+
         }, true)
 
         function init() {
@@ -476,8 +485,13 @@ let timeLeft = setInterval(() => {
             if(statesUpdate.state != states.pause){
                 floor.update()
                 statesUpdate.update()
-                cat.update()
                 player.update()
+            }
+            if(statesUpdate.state != states.pause && player.state !== "died"){
+                cat.update()
+            }else{
+                cat.update()
+                cat.x += 4
             }
         }
 
