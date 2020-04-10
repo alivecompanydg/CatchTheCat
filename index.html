@@ -421,7 +421,6 @@ let timeLeft = setInterval(() => {
             x: 0,
 
             draw: function(){
-                rocks.draw()
                 ctx.fillStyle = "green"
                 ctx.fillRect(this.x, y, mattress.cnv.width, 200)
                 if(this.state === 1){
