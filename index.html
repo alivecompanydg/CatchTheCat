@@ -401,12 +401,27 @@ let timeLeft = setInterval(() => {
             }
         }
 
+        const rocks = {
+            x: Math.floor((Math.random() * mattress.cnv.width * 8) - 80 ),
+            y: y,
+            width:50,
+            height:30,
+
+            draw: function() {
+                ctx.drawImage(assets.rock, 0, 0, 573, 317, floor["x"] + this.x, this.y - this.height + 5, this.width, this.height)
+            },
+
+            update: function() {}
+
+        }
+
         const statesUpdate = {
 
             state: states.menu,
             x: 0,
 
             draw: function(){
+                rocks.draw()
                 ctx.fillStyle = "green"
                 ctx.fillRect(this.x, y, mattress.cnv.width, 200)
                 if(this.state === 1){
