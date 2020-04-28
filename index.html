@@ -374,7 +374,7 @@ let timeLeft = setInterval(() => {
             x2: mattress.cnv.width + mattress.cnv.width + 100,
             x: mattress.cnv.width,
             y: y,
-            width: mattress.cnv.width * 8,
+            width: mattress.cnv.width * 2,
             height: 200,
             velocity:7,
 
@@ -401,19 +401,20 @@ let timeLeft = setInterval(() => {
             }
         }
 
-        const rocks = {
-            x: Math.floor((Math.random() * mattress.cnv.width * 8) - 80 ),
-            y: y,
-            width:50,
-            height:30,
+        class Rock{
+            constructor(y){
+                this.x = Math.floor((Math.random() * mattress.cnv.width * 2) - 100 )
+                this.y = y
+                this.width = 50
+                this.height = 30
+            }
 
-            draw: function() {
-                ctx.drawImage(assets.rock, 0, 0, 573, 317, floor["x"] + this.x, this.y - this.height + 5, this.width, this.height)
-            },
-
-            update: function() {}
-
+            draw() {
+                ctx.drawImage(assets.grass, 0, 0, 342, 242, floor["x"] + this.x, this.y - this.height + 5, this.width, this.height)
+            }
         }
+
+        const grasses = []
 
         const statesUpdate = {
 
